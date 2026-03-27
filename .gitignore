@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Django
+db.sqlite3
+*.log
+staticfiles/
+media/
+*.pot
+*.pyc
+
+# Environment
+.env
+*.env
+
+# Virtual Environment
+.venv/
+.env/
+.virtualenv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# Build
+build/
+dist/
+*.tsbuildinfo
+*.egg-info/
+
+# Node
+node_modules/
+
+# Project
+SESSION_SUMMARY.md
