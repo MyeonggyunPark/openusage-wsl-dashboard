@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #fcfaf3;
+  --color-paper-dark: #f5efe0;
+  --color-ink: #171717;
+  --color-yellow-accent: #ffcb47;
+  --color-blue-accent: #57c3ff;
+  --color-salmon-accent: #ff8b7f;
+  --color-page-background: #f7f3e8;
+  --color-panel-surface: rgba(255, 255, 255, 0.94);
+  --color-panel-shadow: rgba(23, 23, 23, 0.9);
+  --color-gauge-track: #ffffff;
+  --color-gauge-full: #3ccf91;
+  --color-gauge-high: #1d9bf0;
+  --color-gauge-mid: #ff8c42;
+  --color-gauge-low: #ff4d4f;
+  --color-gauge-included: #8a96a8;
+  --color-action-add: #b8ef2f;
+  --color-action-edit: #f5c433;
+  --color-action-remove: #ffb8a6;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    font-family: "IBM Plex Sans KR", "Space Grotesk", "Pretendard", sans-serif;
+    background: var(--color-page-background);
+    color: var(--color-ink);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    background:
+      radial-gradient(circle at top, rgba(200, 255, 98, 0.28), transparent 24%),
+      linear-gradient(180deg, var(--color-paper) 0%, var(--color-paper-dark) 100%);
+  }
+
+  button {
+    font: inherit;
+  }
+}
+
+@layer utilities {
+  .panel-box {
+    @apply rounded-[22px] border-[3px] border-[var(--color-ink)] bg-[var(--color-panel-surface)] shadow-[0_6px_0_var(--color-panel-shadow)];
+  }
+}
