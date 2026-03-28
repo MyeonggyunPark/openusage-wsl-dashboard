@@ -33,6 +33,7 @@ Thumbs.db
 # Build
 build/
 dist/
+.cache/
 *.tsbuildinfo
 *.egg-info/
 
