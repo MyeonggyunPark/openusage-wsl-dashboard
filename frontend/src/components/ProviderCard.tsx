@@ -26,6 +26,10 @@ function getMetricGaugeColor(metric: Metric, ratio: number) {
   return getGaugeColor(usedRatio);
 }
 
+function isLocalSessionUsageMetric(metric: Metric) {
+  return metric.meta?.source === "local_session" && (metric.label === "5h" || metric.label === "7d");
+}
+
 function renderMetricValue(metric: Metric) {
   if (metric.type === "badge") return metric.text;
   if (metric.type === "text") {
@@ -66,11 +70,19 @@ function renderMetricLabel(metric: Metric) {
   }
 
   if (metric.label === "5h") {
-    return `${baseLabel} (${resetAt.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })})`;
+    return `${baseLabel} (${resetAt.toLocaleTimeString("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })})`;
   }
 
   if (metric.label === "7d") {
-    return `${baseLabel} (${resetAt.getMonth() + 1}월 ${resetAt.getDate()}일)`;
+    return `${baseLabel} (${resetAt.getMonth() + 1}월 ${resetAt.getDate()}일 ${resetAt.toLocaleTimeString("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })})`;
   }
 
   return baseLabel;
@@ -80,6 +92,7 @@ function ProgressLine({ metric }: { metric: Metric }) {
   const ratio = metric.type === "progress" ? getDisplayRatio(metric) : 0;
   const gaugeColor = getMetricGaugeColor(metric, ratio);
   const isIncludedMetric = metric.type === "text" && metric.value === "Included";
+  const isTextUsageMetric = metric.type === "text" && isLocalSessionUsageMetric(metric);
 
   return (
     <div className="grid gap-2.5">
@@ -97,12 +110,12 @@ function ProgressLine({ metric }: { metric: Metric }) {
             }}
           />
         </div>
-      ) : isIncludedMetric ? (
+      ) : isIncludedMetric || isTextUsageMetric ? (
         <div className="h-4 overflow-hidden rounded-full border-[3px] border-ink bg-gauge-track">
           <div
             className="h-full"
             style={{
-              width: "100%",
+              width: isIncludedMetric ? "100%" : "0%",
               background: "var(--color-gauge-included)",
             }}
           />
