@@ -10,15 +10,17 @@ const emptyCollection: UsageCollection = {
   isDemoMode: false,
 };
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:6736";
+
 async function refreshUsage() {
-  const response = await fetch("/api/v1/refresh", { method: "POST" });
+  const response = await fetch(`${apiBaseUrl}/api/v1/refresh`, { method: "POST" });
   if (!response.ok) {
     throw new Error("refresh request failed");
   }
 }
 
 async function fetchUsage() {
-  const response = await fetch("/api/v1/usage");
+  const response = await fetch(`${apiBaseUrl}/api/v1/usage`);
   if (!response.ok) {
     throw new Error("usage request failed");
   }

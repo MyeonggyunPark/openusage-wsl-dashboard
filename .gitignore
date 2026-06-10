@@ -39,6 +39,7 @@ dist/
 
 # Node
 node_modules/
+frontend/.vite/
 
 # Project
 SESSION_SUMMARY.md

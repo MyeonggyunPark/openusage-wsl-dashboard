@@ -14,17 +14,34 @@ probe_url() {
   curl -fsS --max-time 2 "$1" >/dev/null 2>&1
 }
 
+probe_frontend_ready() {
+  local html
+  html="$(curl -fsS --max-time 2 "$FRONTEND_URL" 2>/dev/null || true)"
+  [[ -n "$html" && "$html" != *"/@vite/client"* ]]
+}
+
+stop_port() {
+  local port="$1"
+  local pids
+  pids="$(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null || true)"
+  if [[ -n "$pids" ]]; then
+    kill $pids 2>/dev/null || true
+    sleep 0.5
+  fi
+}
+
 start_backend() {
   (
     cd "$ROOT_DIR"
-    nohup "$ROOT_DIR/.venv/bin/python" -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 6736 >"$BACKEND_LOG" 2>&1 &
+    nohup setsid "$ROOT_DIR/.venv/bin/python" -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 6736 >"$BACKEND_LOG" 2>&1 &
   )
 }
 
 start_frontend() {
   (
     cd "$ROOT_DIR/frontend"
-    nohup pnpm dev --host 127.0.0.1 --port 5173 >"$FRONTEND_LOG" 2>&1 &
+    pnpm build >"$FRONTEND_LOG" 2>&1
+    nohup setsid python3 -m http.server 5173 --bind 127.0.0.1 --directory dist >>"$FRONTEND_LOG" 2>&1 &
   )
 }
 
@@ -85,10 +102,12 @@ open_dashboard() {
 
 main() {
   if ! probe_url "$BACKEND_URL"; then
+    stop_port 6736
     start_backend
   fi
 
-  if ! probe_url "$FRONTEND_URL"; then
+  if ! probe_frontend_ready; then
+    stop_port 5173
     start_frontend
   fi
 
