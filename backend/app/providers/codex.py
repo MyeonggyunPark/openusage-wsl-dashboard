@@ -119,10 +119,28 @@ class CodexAdapter(ProviderAdapter):
 
     def _build_metrics(self, payload: dict) -> list[UsageMetric]:
         rate_limit = payload["rate_limit"]
-        metrics = [
-            self._window_metric("5h", rate_limit["primary_window"], color="#1d9bf0"),
-            self._window_metric("7d", rate_limit["secondary_window"], color="#3ccf91"),
+        primary_window = rate_limit["primary_window"]
+        window_metrics = [
+            self._window_metric(
+                self._window_label(primary_window, fallback="5h"),
+                primary_window,
+                color="#1d9bf0",
+            ),
         ]
+        secondary_window = rate_limit.get("secondary_window")
+        if secondary_window is not None:
+            window_metrics.append(
+                self._window_metric(
+                    self._window_label(secondary_window, fallback="7d"),
+                    secondary_window,
+                    color="#3ccf91",
+                )
+            )
+
+        metrics = sorted(
+            window_metrics,
+            key=lambda metric: metric.period_duration_ms or float("inf"),
+        )
 
         context_metric = self._latest_context_metric()
         if context_metric is not None:
@@ -136,6 +154,15 @@ class CodexAdapter(ProviderAdapter):
                 self._window_metric("Code Review", secondary_window, color="#b7f34d")
             )
         return metrics
+
+    @staticmethod
+    def _window_label(window: dict, *, fallback: str) -> str:
+        duration_seconds = int(window.get("limit_window_seconds") or 0)
+        if duration_seconds > 0 and duration_seconds % 86_400 == 0:
+            return f"{duration_seconds // 86_400}d"
+        if duration_seconds > 0 and duration_seconds % 3_600 == 0:
+            return f"{duration_seconds // 3_600}h"
+        return fallback
 
     def _window_metric(self, label: str, window: dict, *, color: str) -> UsageMetric:
         return UsageMetric(
